@@ -2,13 +2,36 @@ group 'jp.co.ksilverwall'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'application'
+
+def robocodeHome = System.getenv('ROBOCODE_HOME')
 
 sourceCompatibility = 1.8
+applicationDefaultJvmArgs = ["-DWORKINGDIRECTORY=${robocodeHome}", "-DROBOTPATH=${robocodeHome}/robots"]
+applicationName = 'Robocode'
+mainClassName = 'robocode.Robocode'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compile group: 'net.sf.robocode', name: 'robocode.api', version: '1.9.2.1'
+    runtime fileTree(dir:"${robocodeHome}/libs", include:'*.jar', exclude:'junit-*.jar')
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+task install() << {
+    if (robocodeHome == null) {
+        throw new GradleException('The ROBOCODE_HOME is not set')
+    }
+
+    def packagePath = 'jp/co/ksilverwall/robocode'
+    copy {
+        from "${sourceSets.main.output.classesDir.path}/${packagePath}"
+        into "${robocodeHome}/robots/${packagePath}"
+    }
+    println "Class Files copy to ${robocodeHome}/robots/${packagePath}"
+}
+
+tasks.run.dependsOn install
