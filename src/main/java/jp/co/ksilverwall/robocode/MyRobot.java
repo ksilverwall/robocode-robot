@@ -10,7 +10,7 @@ import static java.lang.Math.PI;
 /**
  * Main Robot class
  */
-public class MyRobot extends robocode.Robot {
+public class MyRobot extends robocode.AdvancedRobot {
     private final double MAX_ROTATE_RADER = PI / 4;
     private BattleField battleField;
     private Map<String, EnemyStatus> enemyList;
@@ -24,7 +24,8 @@ public class MyRobot extends robocode.Robot {
         battleField = new BattleField(getBattleFieldWidth(), getBattleFieldHeight());
         enemyList = new HashMap<>();
         while (true) {
-            turnRadarRight(Math.toDegrees(MAX_ROTATE_RADER));
+            setTurnRadarRight(Math.toDegrees(MAX_ROTATE_RADER));
+            execute();
         }
     }
 
