@@ -1,6 +1,6 @@
 package jp.co.ksilverwall.robocode;
 
-public class BattleField {
+class BattleField {
     public final double width;
     public final double height;
 

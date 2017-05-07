@@ -5,18 +5,18 @@ import robocode.ScannedRobotEvent;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
-public class EnemyStatus {
+class EnemyStatus {
     public final double energy;
     /**
      * Absolute Position
      */
     public final Position position;
     /**
-     * Absolute velocity
+     * Absolute Velocity
      */
-    public final Position velocity;
+    public final Velocity velocity;
 
-    public EnemyStatus(double energy, Position position, Position velocity) {
+    public EnemyStatus(double energy, Position position, Velocity velocity) {
         this.energy = energy;
         this.position = position;
         this.velocity = velocity;
@@ -34,7 +34,7 @@ public class EnemyStatus {
 
         double velocity = event.getVelocity();
         double heading = event.getHeadingRadians();
-        Position v = new Position(velocity * sin(heading), velocity * cos(heading));
+        Velocity v = new Velocity(velocity * sin(heading), velocity * cos(heading));
 
         double energy = event.getEnergy();
 
