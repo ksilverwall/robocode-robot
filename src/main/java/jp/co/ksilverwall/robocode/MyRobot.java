@@ -7,15 +7,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.PI;
-import static java.lang.Math.sqrt;
 import static jp.co.ksilverwall.robocode.Vector2.dot;
 
 /**
  * Main Robot class
  */
 public class MyRobot extends robocode.AdvancedRobot {
-    private final double MAX_GUN_ROTATE = PI / 4;
-    private final double MAX_RADAR_ROTATE = PI / 4;
+    private static final double MAX_GUN_ROTATE = PI / 4;
+    private static final double MAX_RADAR_ROTATE = PI / 4;
     private BattleField battleField;
     private Map<String, EnemyStatus> enemyList;
 
@@ -27,7 +26,7 @@ public class MyRobot extends robocode.AdvancedRobot {
         return (PI / 2 - getGunHeadingRadians());
     }
 
-    private IAction[] think() {
+    static private IAction[] think(MyRobotStatus robot, Map<String, EnemyStatus> enemyList) {
         ArrayList<IAction> actionList = new ArrayList<>();
 
         // Basic Targeting
@@ -35,14 +34,14 @@ public class MyRobot extends robocode.AdvancedRobot {
         double targetDistance = Double.MAX_VALUE;
         for (String name : enemyList.keySet()) {
             EnemyStatus enemyStatus = enemyList.get(name);
-            double distance = enemyStatus.position.getDistance(getPosition());
+            double distance = enemyStatus.position.getDistance(robot.position);
             if (distance < targetDistance) {
                 targetStatus = enemyStatus;
                 targetDistance = distance;
             }
         }
 
-        if (getGunHeat() == 0) {
+        if (robot.gunHeat == 0) {
             // Linear Behavior Inference
             // (1) |Vb| = 20 - 3 * power
             // (2) Vb * t + P == Vt * t + Pt;
@@ -51,7 +50,7 @@ public class MyRobot extends robocode.AdvancedRobot {
             // (4) Vb = Vt + (Pt - P) / t
             int power = 1;
             double bulletSpeed = 20 - 3 * power;
-            Position p = targetStatus.position.sub(this.getPosition());
+            Position p = targetStatus.position.sub(robot.position);
             double Z = bulletSpeed * bulletSpeed - dot(targetStatus.velocity, targetStatus.velocity);
             double quarterDeterminer = dot(targetStatus.velocity, p) * dot(targetStatus.velocity, p) - Z * dot(p, p);
             if (quarterDeterminer >= 0) {
@@ -60,7 +59,7 @@ public class MyRobot extends robocode.AdvancedRobot {
                 Velocity bulletVelocity = targetStatus.velocity.add(p.divByTime(min_t));
                 assert (bulletVelocity.getLength() - bulletSpeed == 0.0);
                 double bulletAngle = bulletVelocity.getAngle();
-                double gunAngle = getGunAngle();
+                double gunAngle = robot.gunAngle;
                 if (Angle.diff(bulletAngle, gunAngle) < MAX_GUN_ROTATE) {
                     actionList.add(new ShotAction(power, bulletAngle));
                 }
@@ -74,7 +73,7 @@ public class MyRobot extends robocode.AdvancedRobot {
         battleField = new BattleField(getBattleFieldWidth(), getBattleFieldHeight());
         enemyList = new HashMap<>();
         while (true) {
-            IAction[] actionList = think();
+            IAction[] actionList = think(new MyRobotStatus(getEnergy(), getPosition(), getGunHeat(), getGunAngle()), enemyList);
             for (IAction action : actionList) {
                 action.execute(this);
             }
