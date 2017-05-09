@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.PI;
+import static java.lang.Math.sqrt;
 import static jp.co.ksilverwall.robocode.Vector2.dot;
 
 /**
